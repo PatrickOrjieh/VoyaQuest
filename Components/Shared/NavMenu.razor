@@ -1,40 +1,73 @@
-﻿<nav class="navbar navbar-expand-lg bg-body-tertiary">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="#">Navbar</a>
+﻿<nav class="navbar navbar-expand-lg" style="background-color: white;">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center me-5" href="/">
+            <img src="images/icons8-truck.gif" alt="Logo" width="30" height="30" class="d-inline-block align-text-top me-2">
+            <span class="brand-text">VoyaQuest</span>
+        </a>
+
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
+
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="#">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Link</a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Dropdown
+                    <a class="btn btn-pill btn-flight me-3 d-flex align-items-center" href="#">
+                        <i class="fas fa-plane me-2"></i> Flights
                     </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">Action</a></li>
-                        <li><a class="dropdown-item" href="#">Another action</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#">Something else here</a></li>
-                    </ul>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link disabled" aria-disabled="true">Disabled</a>
+                    <a class="btn btn-pill btn-hotel me-3 d-flex align-items-center" href="#">
+                        <i class="fas fa-hotel me-2"></i> Hotels
+                    </a>
                 </li>
             </ul>
-            <form class="d-flex" role="search">
-                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success" type="submit">Search</button>
-            </form>
+
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <li class="nav-item dropdown d-flex align-items-center">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" id="dropdownCurrency" data-bs-toggle="dropdown" aria-expanded="false">
+                        <img src="https://cdn.britannica.com/79/4479-050-6EF87027/flag-Stars-and-Stripes-May-1-1795.jpg" alt="Country Flag" width="24" height="16" class="me-1">
+                        <span class="me-2">USD</span>
+                        <span class="me-3">($)</span>
+                    </a>
+
+                    <div class="dropdown-menu p-3" aria-labelledby="dropdownCurrency">
+                        <div class="mb-3">
+                            <label for="selectCountry" class="form-label">Select Country</label>
+                            <select class="form-select" id="selectCountry">
+                                <option value="us" selected>United States</option>
+                                <option value="gb">United Kingdom</option>
+                                <option value="fr">France</option>
+                                <option value="de">Germany</option>
+                                <option value="jp">Japan</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="selectCurrency" class="form-label">Select Currency</label>
+                            <select class="form-select" id="selectCurrency">
+                                <option value="usd" selected>USD - United States Dollar</option>
+                                <option value="eur">EUR - Euro</option>
+                                <option value="gbp">GBP - British Pound</option>
+                                <option value="jpy">JPY - Japanese Yen</option>
+                            </select>
+                        </div>
+                    </div>
+                </li>
+
+                <li class="nav-item">
+                    <a class="btn me-3" href="#">
+                        <i class="fas fa-heart"></i>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="btn custom-signin-btn" href="#">
+                        <i class="fas fa-user"></i> Sign In
+                    </a>
+                </li>
+
+            </ul>
         </div>
     </div>
 </nav>
-
-@code {
-
-}
