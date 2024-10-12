@@ -42,3 +42,7 @@
     margin-right: 8px;
 }
 
+.navbar {
+    border-bottom: 1px solid grey;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
