@@ -1,4 +1,6 @@
-﻿namespace VoyaQuest.Interfaces
+﻿using VoyaQuest.Models;
+
+namespace VoyaQuest.Interfaces
 {
     /// <summary>
     /// This interface represents the service that provides airport autocomplete functionality.
