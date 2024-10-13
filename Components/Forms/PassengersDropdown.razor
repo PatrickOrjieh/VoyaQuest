@@ -29,7 +29,7 @@
 
     // Increase and decrease the number of adults
     private void IncreaseAdults() => travelDetails.AdultCount++;
-    private void DecreaseAdults() { if (travelDetails.AdultCount > 1) travelDetails.AdultCount--; }
+    private void DecreaseAdults() { if (travelDetails.AdultCount > 0) travelDetails.AdultCount--; }
 
     // Increase and decrease the number of children
     private void IncreaseChildren() => travelDetails.ChildCount++;

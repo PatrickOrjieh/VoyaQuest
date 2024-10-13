@@ -1,4 +1,5 @@
 using VoyaQuest.Components;
+using DotNetEnv;
 
 namespace VoyaQuest
 {
@@ -8,9 +9,15 @@ namespace VoyaQuest
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            // Load environment variables from the .env file
+            Env.Load();
+
             // Add services to the container.
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
+
+            // Add HttpClient for Amadeus API Service
+            builder.Services.AddHttpClient<IAirportAutocompleteService, AmadeusAutocompleteService>();
 
             var app = builder.Build();
 
