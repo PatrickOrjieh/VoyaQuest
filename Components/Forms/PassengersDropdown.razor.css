@@ -41,3 +41,23 @@
     font-size: 12px;
     color: #000;
 }
+
+.form-control {
+    width: 30px;
+    height: 30px;
+    padding: 5px;
+    font-size: 0.875rem;
+}
+
+.input-group .btn-minus,
+.input-group .btn-plus {
+    width: 32px;
+    height: 30px;
+    font-size: 18px;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    line-height: 1;
+    border-radius: 50%;
+}
