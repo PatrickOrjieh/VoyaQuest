@@ -11,6 +11,12 @@
     font-size: 12px;
 }
 
+.btn-pill.active {
+    background-color: #ef732a;
+    color: #ffffff;
+    border-color: #ef732a;
+}
+
 .btn-pill:hover,
 .btn-pill:focus {
     background-color: #ef732a;
