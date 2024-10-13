@@ -1,4 +1,6 @@
 ﻿@page "/"
+@using VoyaQuest.Models;
+@using VoyaQuest.Components.Forms;
 
 <PageTitle>Home</PageTitle>
 
@@ -16,40 +18,18 @@
 
         <div class="search-form container mt-5">
             <div class="form-row mb-4">
-                <div class="col-md-1">
+                <div class="col-md-2">
                     <select id="tripType" class="form-select">
                         <option value="return" selected>Return</option>
                         <option value="one-way">One Way</option>
                     </select>
                 </div>
 
-                <div class="col-md-3">
-                    <div class="dropdown passengers-dropdown">
-                        <button class="btn btn-select" type="button" id="passengerDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            1 Adult, 0 Children
-                        </button>
-                        <ul class="dropdown-menu p-3">
-                            <li class="d-flex justify-content-between align-items-center">
-                                <span>Adults (18+)</span>
-                                <div class="input-group">
-                                    <button class="btn btn-minus" type="button">-</button>
-                                    <input type="text" value="1" class="form-control text-center" readonly>
-                                    <button class="btn btn-plus" type="button">+</button>
-                                </div>
-                            </li>
-                            <li class="mt-2 d-flex justify-content-between align-items-center">
-                                <span>Children</span>
-                                <div class="input-group">
-                                    <button class="btn btn-minus" type="button">-</button>
-                                    <input type="text" value="0" class="form-control text-center" readonly>
-                                    <button class="btn btn-plus" type="button">+</button>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
+                <div class="col-md-2">
+                    <PassengersDropdown travelDetails="@travelDetails" />
                 </div>
 
-                <div class="col-md-1">
+                <div class="col-md-2">
                     <select id="cabinClass" class="form-select">
                         <option value="economy" selected>Economy</option>
                         <option value="premium-economy">Premium Economy</option>
@@ -58,30 +38,8 @@
                     </select>
                 </div>
 
-                <div class="col-md-3">
-                    <div class="dropdown baggage-dropdown">
-                        <button class="btn btn-select" type="button" id="baggageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            Cabin Bag: 0, Checked Bag: 0
-                        </button>
-                        <ul class="dropdown-menu p-3">
-                            <li class="d-flex justify-content-between align-items-center">
-                                <span>Cabin Bag</span>
-                                <div class="input-group">
-                                    <button class="btn btn-minus" type="button">-</button>
-                                    <input type="text" value="0" class="form-control text-center" readonly>
-                                    <button class="btn btn-plus" type="button">+</button>
-                                </div>
-                            </li>
-                            <li class="mt-2 d-flex justify-content-between align-items-center">
-                                <span>Checked Bag</span>
-                                <div class="input-group">
-                                    <button class="btn btn-minus" type="button">-</button>
-                                    <input type="text" value="0" class="form-control text-center" readonly>
-                                    <button class="btn btn-plus" type="button">+</button>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
+                <div class="col-md-2">
+                    <BagsDropdown travelDetails="@travelDetails" />
                 </div>
             </div>
 
@@ -114,3 +72,8 @@
         </div>
     </div>
 </div>
+
+@code {
+    // Create a new instance of the TravelDetails class used to store the user's travel details before flight search
+    private TravelDetails travelDetails = new TravelDetails();
+}

@@ -1,0 +1,37 @@
+﻿@using VoyaQuest.Models;
+
+<div class="dropdown baggage-dropdown">
+    <button class="btn btn-select" type="button" data-bs-toggle="dropdown">
+        @travelDetails.GetBaggageText()
+    </button>
+    <ul class="dropdown-menu p-3">
+        <li class="d-flex justify-content-between align-items-center">
+            <span>Cabin</span>
+            <div class="input-group">
+                <button class="btn btn-minus" @onclick="DecreaseCabinBags">-</button>
+                <input type="text" class="form-control text-center" value="@travelDetails.CabinBagCount" readonly>
+                <button class="btn btn-plus" @onclick="IncreaseCabinBags">+</button>
+            </div>
+        </li>
+        <li class="mt-2 d-flex justify-content-between align-items-center">
+            <span>Checked</span>
+            <div class="input-group">
+                <button class="btn btn-minus" @onclick="DecreaseCheckedBags">-</button>
+                <input type="text" class="form-control text-center" value="@travelDetails.CheckedBagCount" readonly>
+                <button class="btn btn-plus" @onclick="IncreaseCheckedBags">+</button>
+            </div>
+        </li>
+    </ul>
+</div>
+
+@code {
+    [Parameter] public TravelDetails travelDetails { get; set; } = new TravelDetails();
+
+    // Increase and decrease the number of cabin bags
+    private void IncreaseCabinBags() => travelDetails.CabinBagCount++;
+    private void DecreaseCabinBags() { if (travelDetails.CabinBagCount > 0) travelDetails.CabinBagCount--; }
+
+    // Increase and decrease the number of checked bags
+    private void IncreaseCheckedBags() => travelDetails.CheckedBagCount++;
+    private void DecreaseCheckedBags() { if (travelDetails.CheckedBagCount > 0) travelDetails.CheckedBagCount--; }
+}

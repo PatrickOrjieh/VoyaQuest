@@ -1,0 +1,43 @@
+﻿.form-row .form-select,
+.form-row .btn-select {
+    border: none;
+    font-size: 0.875rem;
+    padding: 5px;
+    background-color: transparent;
+    color: #000;
+    position: relative;
+    width: 100%;
+}
+
+.form-select,
+.btn-select,
+.form-control {
+    padding: 10px;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-shadow: none;
+}
+
+.form-select:focus,
+.btn-select:focus,
+.form-control:focus {
+    outline: none;
+    border-color: #ef732a;
+    box-shadow: 0 0 5px rgba(239, 115, 42, 0.5);
+}
+
+.btn-select {
+    background-color: transparent;
+    padding-right: 25px;
+}
+
+.btn-select::after {
+    content: '▼';
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    color: #000;
+}
