@@ -1,4 +1,4 @@
-﻿using VoyaQuest.Models;
+﻿using VoyaQuest.Models.AmadeusAirportResponse;
 
 namespace VoyaQuest.Interfaces
 {

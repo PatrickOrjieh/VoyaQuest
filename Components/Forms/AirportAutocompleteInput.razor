@@ -1,0 +1,47 @@
+﻿@using VoyaQuest.Interfaces
+@using VoyaQuest.Models.AmadeusAirportResponse
+@inject IAirportAutocompleteService AirportService
+
+<div class="position-relative input-with-icon">
+    <i class="@IconClass input-icon"></i>
+    <input type="text" class="form-control input-icon-inside" placeholder="@Placeholder" @bind-value="query" @oninput="OnInputAsync" />
+
+    @if (airports?.Any() == true)
+    {
+        <ul class="dropdown-menu show autocomplete-dropdown">
+            @foreach (Airport airport in airports)
+            {
+                <li @onclick="() => SelectAirport(airport)">
+                    <a class="dropdown-item">@airport.name (@airport.iataCode) - @airport.address.cityName</a>
+                </li>
+            }
+        </ul>
+    }
+</div>
+
+@code {
+    [Parameter] public string Placeholder { get; set; } = "From?";
+    [Parameter] public string IconClass { get; set; } = "fas fa-plane-departure";
+
+    private string query = "";
+    private List<Airport> airports = new List<Airport>();
+
+    private async Task OnInputAsync(ChangeEventArgs e)
+    {
+        query = e.Value?.ToString() ?? string.Empty;
+        if (query.Length > 2)
+        {
+            airports = await AirportService.GetAirportsAsync(query);
+        }
+        else
+        {
+            airports.Clear();
+        }
+    }
+
+    private void SelectAirport(Airport airport)
+    {
+        query = $"{airport.name} ({airport.iataCode})";
+        airports.Clear();
+    }
+}

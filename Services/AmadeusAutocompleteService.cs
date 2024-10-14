@@ -2,37 +2,36 @@
 using System.Text.Json;
 using VoyaQuest.Interfaces;
 using VoyaQuest.Models;
+using VoyaQuest.Models.AmadeusAirportResponse;
 
 namespace VoyaQuest.Services
 {
     /// <summary>
-    /// This class represents the service that provides airport autocomplete functionality.
+    /// Service providing airport autocomplete functionality via the Amadeus API.
     /// </summary>
     public class AmadeusAutocompleteService : IAirportAutocompleteService
     {
-        /// <summary>
-        /// This property represents the HTTP client to be used in the service.
-        /// </summary>
         private readonly HttpClient _httpClient;
-        /// <summary>
-        /// This property represents the access token to be used in the service.
-        /// </summary>
         private string _accessToken;
 
+        // API URLs
+        private const string TokenUrl = "https://test.api.amadeus.com/v1/security/oauth2/token";
+        private const string AirportSearchUrl = "https://test.api.amadeus.com/v1/reference-data/locations?subType=AIRPORT,CITY&keyword={0}&page[limit]=10";
+
         /// <summary>
-        /// This constructor initializes the service with the provided HTTP client.
+        /// Initializes the service with the provided HTTP client.
         /// </summary>
-        /// <param name="httpClient">the HTTP client to be used in the service</param>
+        /// <param name="httpClient">The HTTP client to be used for API calls.</param>
         public AmadeusAutocompleteService(HttpClient httpClient)
         {
             _httpClient = httpClient;
         }
 
         /// <summary>
-        /// This method calls the Amadeus API to get the list of airports based on the provided query.
+        /// Fetches a list of airports matching the provided query.
         /// </summary>
-        /// <param name="query">The query to be used to search for airports</param>
-        /// <returns>A list of airports based on the provided query</returns>
+        /// <param name="query">The search term for airport/city names.</param>
+        /// <returns>A list of matching airports.</returns>
         public async Task<List<Airport>> GetAirportsAsync(string query)
         {
             if (string.IsNullOrEmpty(_accessToken))
@@ -40,43 +39,67 @@ namespace VoyaQuest.Services
                 await AuthenticateAsync();
             }
 
-            // Create a request to the Amadeus API to get the list of airports based on the provided query and limit the results to 5.
-            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"https://test.api.amadeus.com/v1/reference-data/locations?subType=AIRPORT,CITY&keyword={query}&page[limit]=5");
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
-
-            HttpResponseMessage response = await _httpClient.SendAsync(request);
-            if (response.IsSuccessStatusCode)
+            try
             {
-                string content = await response.Content.ReadAsStringAsync();
-                AmadeusAirportResponse? result = JsonSerializer.Deserialize<AmadeusAirportResponse>(content);
-                return result?.Data ?? new List<Airport>();
-            }
+                string requestUrl = string.Format(AirportSearchUrl, query);
+                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
 
+                HttpResponseMessage response = await _httpClient.SendAsync(request);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    string content = await response.Content.ReadAsStringAsync();
+                    Rootobject? rootObject = JsonSerializer.Deserialize<Rootobject>(content);
+                    return rootObject?.data?.ToList() ?? new List<Airport>();
+                }
+                else
+                {
+                    Console.WriteLine($"Error: Received HTTP {response.StatusCode} from Amadeus API.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Exception occurred while fetching airports: {ex.Message}");
+            }
             return new List<Airport>();
         }
 
         /// <summary>
-        /// This method authenticates the service with the Amadeus API to get the access token.
+        /// Authenticates with the Amadeus API to retrieve an access token.
         /// </summary>
-        /// <returns>A task representing the asynchronous operation</returns>
+        /// <returns>An asynchronous task that performs authentication.</returns>
         private async Task AuthenticateAsync()
         {
-            string? apiKey = Environment.GetEnvironmentVariable("AMADEUS_API_KEY");
-            string? apiSecret = Environment.GetEnvironmentVariable("AMADEUS_API_SECRET");
-
-            FormUrlEncodedContent requestContent = new FormUrlEncodedContent(new[]
+            try
             {
-                new KeyValuePair<string, string>("grant_type", "client_credentials"),
-                new KeyValuePair<string, string>("client_id", apiKey),
-                new KeyValuePair<string, string>("client_secret", apiSecret)
-            });
+                string? apiKey = Environment.GetEnvironmentVariable("AMADEUS_API_KEY");
+                string? apiSecret = Environment.GetEnvironmentVariable("AMADEUS_API_SECRET");
 
-            HttpResponseMessage response = await _httpClient.PostAsync("https://test.api.amadeus.com/v1/security/oauth2/token", requestContent);
-            if (response.IsSuccessStatusCode)
+                var requestContent = new FormUrlEncodedContent(new[]
+                {
+                    new KeyValuePair<string, string>("grant_type", "client_credentials"),
+                    new KeyValuePair<string, string>("client_id", apiKey),
+                    new KeyValuePair<string, string>("client_secret", apiSecret)
+                });
+
+                HttpResponseMessage response = await _httpClient.PostAsync(TokenUrl, requestContent);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    string content = await response.Content.ReadAsStringAsync();
+                    AmadeusTokenResponse? tokenResponse = JsonSerializer.Deserialize<AmadeusTokenResponse>(content);
+                    _accessToken = tokenResponse?.AccessToken;
+                }
+                else
+                {
+                    string errorContent = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"Error: {response.StatusCode} - {errorContent}");
+                }
+            }
+            catch (Exception ex)
             {
-                string content = await response.Content.ReadAsStringAsync();
-                AmadeusTokenResponse? tokenResponse = JsonSerializer.Deserialize<AmadeusTokenResponse>(content);
-                _accessToken = tokenResponse?.AccessToken;
+                Console.WriteLine($"Exception occurred while authenticating: {ex.Message}");
             }
         }
     }
