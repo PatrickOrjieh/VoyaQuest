@@ -1,0 +1,23 @@
+﻿<div class="modal-backdrop" @onclick="CloseModal" style="@ModalDisplay"></div>
+<div class="modal error-modal" style="@ModalDisplay">
+    <div class="modal-header">
+        <h5 class="modal-title">Error</h5>
+        <button type="button" class="btn-close" @onclick="CloseModal">×</button>
+    </div>
+    <div class="modal-body">
+        <p>@ErrorMessage</p>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string ErrorMessage { get; set; }
+    [Parameter] public bool ShowModal { get; set; }
+
+    private string ModalDisplay => ShowModal ? "display: block;" : "display: none;";
+
+    private void CloseModal()
+    {
+        ShowModal = false;
+        StateHasChanged();
+    }
+}
