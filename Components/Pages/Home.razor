@@ -1,6 +1,7 @@
 ﻿@page "/"
-@using VoyaQuest.Models;
-@using VoyaQuest.Components.Forms;
+@using VoyaQuest.Components.Shared
+@using VoyaQuest.Models
+@using VoyaQuest.Components.Forms
 
 <PageTitle>Home</PageTitle>
 
@@ -17,61 +18,148 @@
         </div>
 
         <div class="search-form container mt-5">
-            <div class="form-row mb-4">
-                <div class="col-md-2">
-                    <select id="tripType" class="form-select">
-                        <option value="return" selected>Return</option>
-                        <option value="one-way">One Way</option>
-                    </select>
+            <EditForm Model="@searchModel" OnValidSubmit="@HandleValidSubmit" name="flightSearchForm">
+                <div class="form-row mb-4">
+                    <div class="col-md-2">
+                        <select id="tripType" class="form-select" @bind="searchModel.TripType">
+                            <option value="return">Return</option>
+                            <option value="one-way">One Way</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <PassengersDropdown travelDetails="@searchModel.TravelDetails" />
+                    </div>
+
+                    <div class="col-md-2">
+                        <select id="cabinClass" class="form-select" @bind="searchModel.CabinClass">
+                            <option value="economy">Economy</option>
+                            <option value="premium-economy">Premium Economy</option>
+                            <option value="business">Business</option>
+                            <option value="first">First</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <BagsDropdown travelDetails="@searchModel.TravelDetails" />
+                    </div>
                 </div>
 
-                <div class="col-md-2">
-                    <PassengersDropdown travelDetails="@travelDetails" />
-                </div>
+                <div class="form-row">
+                    <div class="col position-relative">
+                        <AirportAutocompleteInput Placeholder="From?" IconClass="fas fa-plane-departure" @bind-Value="searchModel.DepartureAirport" />
+                    </div>
 
-                <div class="col-md-2">
-                    <select id="cabinClass" class="form-select">
-                        <option value="economy" selected>Economy</option>
-                        <option value="premium-economy">Premium Economy</option>
-                        <option value="business">Business</option>
-                        <option value="first">First</option>
-                    </select>
-                </div>
+                    <div class="col-auto d-flex align-items-center">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
 
-                <div class="col-md-2">
-                    <BagsDropdown travelDetails="@travelDetails" />
-                </div>
-            </div>
+                    <div class="col position-relative">
+                        <AirportAutocompleteInput Placeholder="To?" IconClass="fas fa-plane-arrival" @bind-Value="searchModel.DestinationAirport" />
+                    </div>
 
-            <div class="form-row">
-                <div class="col position-relative">
-                    <AirportAutocompleteInput Placeholder="From?" IconClass="fas fa-plane-departure" />
-                </div>
+                    <div class="col">
+                        <input type="date" id="departure" class="form-control input-with-icon" @bind="searchModel.DepartureDate">
+                    </div>
 
-                <div class="col-auto d-flex align-items-center">
-                    <i class="fas fa-exchange-alt"></i>
-                </div>
+                    @if (searchModel.TripType == "return")
+                    {
+                        <div class="col return-date">
+                            <input type="date" id="return" class="form-control input-with-icon" @bind="searchModel.ReturnDate" />
+                        </div>
+                    }
 
-                <div class="col position-relative">
-                    <AirportAutocompleteInput Placeholder="To?" IconClass="fas fa-plane-arrival" />
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-search"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    </div>
                 </div>
-                 
-                <div class="col">
-                    <input type="date" id="departure" class="form-control input-with-icon">
-                </div>
-                <div class="col return-date">
-                    <input type="date" id="return" class="form-control input-with-icon">
-                </div>
-
-                <div class="col-auto">
-                    <button type="submit" class="btn btn-search"><i class="fa-solid fa-magnifying-glass"></i></button>
-                </div>
-            </div>
+            </EditForm>
         </div>
     </div>
+    <ErrorModal ErrorMessage="@errorMessage" ShowModal="@showModal" OnModalClose="CloseModal" />
 </div>
 
 @code {
-    // Create a new instance of the TravelDetails class used to store the user's travel details before flight search
-    private TravelDetails travelDetails = new TravelDetails();
+    private SearchModel searchModel = new();
+    private bool showModal = false;
+    private string errorMessage = "";
+
+    // Event handler to handle valid form submission
+    private void HandleValidSubmit()
+    {
+        if (!IsFormValid())
+        {
+            ShowModal();
+        }
+        else
+        {
+            // Form is valid, submit the form. TODO: Implement form submission logic with API
+            Console.WriteLine($"SearchModel: {searchModel}");
+        }
+    }
+
+    private bool IsFormValid()
+    {
+        var today = DateTime.Today;
+
+        // Validate that From and To airports are selected
+        if (string.IsNullOrEmpty(searchModel.DepartureAirport))
+        {
+            errorMessage = "Departure airport is required.";
+            return false;
+        }
+        if (string.IsNullOrEmpty(searchModel.DestinationAirport))
+        {
+            errorMessage = "Destination airport is required.";
+            return false;
+        }
+
+        // Validate that departure date is selected and in the future
+        if (searchModel.DepartureDate == null)
+        {
+            errorMessage = "Departure date is required.";
+            return false;
+        }
+        if (searchModel.DepartureDate < today)
+        {
+            errorMessage = "Departure date cannot be in the past.";
+            return false;
+        }
+
+        // If its a return trip, validate that the return date is after the departure date
+        if (searchModel.TripType == "return")
+        {
+            if (searchModel.ReturnDate == null)
+            {
+                errorMessage = "Return date is required for return trips.";
+                return false;
+            }
+            if (searchModel.ReturnDate <= searchModel.DepartureDate)
+            {
+                errorMessage = "Return date must be after the departure date.";
+                return false;
+            }
+        }
+
+        // Validate traveler count
+        if (searchModel.TravelDetails.AdultCount == 0 && searchModel.TravelDetails.ChildCount == 0)
+        {
+            errorMessage = "At least one traveler is required.";
+            return false;
+        }
+
+        return true;
+    }
+
+    // Modal control methods
+    private void ShowModal()
+    {
+        showModal = true;
+    }
+
+    private void CloseModal()
+    {
+        showModal = false;
+        errorMessage = "";
+    }
 }

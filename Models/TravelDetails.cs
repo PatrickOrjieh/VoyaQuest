@@ -74,6 +74,12 @@
             int totalBags = CabinBagCount + CheckedBagCount;
             return $"{totalBags} Bag{(totalBags > 1 ? "s" : "")}";
         }
+
+        //To string method to see the output that is being passed to the API
+        public override string ToString()
+        {
+            return $"AdultCount: {AdultCount}, ChildCount: {ChildCount}, CabinBagCount: {CabinBagCount}, CheckedBagCount: {CheckedBagCount}";
+        }
     }
 
 }

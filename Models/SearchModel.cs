@@ -82,5 +82,11 @@
             get { return travelDetails; }
             set { travelDetails = value; }
         }
+
+        // To string method to see the output that is being passed to the API
+        public override string ToString()
+        {
+            return "TripType: " + tripType + ", DepartureAirport: " + departureAirport + ", DestinationAirport: " + destinationAirport + ", DepartureDate: " + departureDate + ", ReturnDate: " + returnDate + ", CabinClass: " + cabinClass + ", TravelDetails: " + travelDetails;
+        }
     }
 }

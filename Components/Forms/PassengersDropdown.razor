@@ -8,17 +8,17 @@
         <li class="d-flex justify-content-between align-items-center">
             <span>Adults (18+)</span>
             <div class="input-group">
-                <button class="btn btn-minus ms-1" @onclick="DecreaseAdults">-</button>
+                <button class="btn btn-minus ms-1" type="button" @onclick="DecreaseAdults">-</button>
                 <input type="text" class="form-control text-center" value="@travelDetails.AdultCount" readonly>
-                <button class="btn btn-plus" @onclick="IncreaseAdults">+</button>
+                <button class="btn btn-plus" type="button" @onclick="IncreaseAdults">+</button>
             </div>
         </li>
         <li class="mt-2 d-flex justify-content-between align-items-center">
             <span>Children</span>
             <div class="input-group">
-                <button class="btn btn-minus ms-1" @onclick="DecreaseChildren">-</button>
+                <button class="btn btn-minus ms-1" type="button" @onclick="DecreaseChildren">-</button>
                 <input type="text" class="form-control text-center" value="@travelDetails.ChildCount" readonly>
-                <button class="btn btn-plus" @onclick="IncreaseChildren">+</button>
+                <button class="btn btn-plus" type="button" @onclick="IncreaseChildren">+</button>
             </div>
         </li>
     </ul>

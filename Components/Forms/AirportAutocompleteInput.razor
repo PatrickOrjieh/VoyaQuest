@@ -4,7 +4,7 @@
 
 <div class="position-relative input-with-icon">
     <i class="@IconClass input-icon"></i>
-    <input type="text" class="form-control input-icon-inside" placeholder="@Placeholder" @bind-value="query" @oninput="OnInputAsync" />
+    <input type="text" class="form-control input-icon-inside" placeholder="@Placeholder" @bind-value="Value" @oninput="OnInputAsync" />
 
     @if (airports?.Any() == true)
     {
@@ -23,15 +23,31 @@
     [Parameter] public string Placeholder { get; set; } = "From?";
     [Parameter] public string IconClass { get; set; } = "fas fa-plane-departure";
 
-    private string query = "";
+    // Value parameter with getter and setter to handle two-way binding
+    private string _value;
+    [Parameter]
+    public string Value
+    {
+        get => _value;
+        set
+        {
+            if (_value != value)
+            {
+                _value = value;
+                ValueChanged.InvokeAsync(value);
+            }
+        }
+    }
+    [Parameter] public EventCallback<string> ValueChanged { get; set; }
+
     private List<Airport> airports = new List<Airport>();
 
     private async Task OnInputAsync(ChangeEventArgs e)
     {
-        query = e.Value?.ToString() ?? string.Empty;
-        if (query.Length > 2)
+        Value = e.Value?.ToString() ?? string.Empty;
+        if (Value.Length > 2)
         {
-            airports = await AirportService.GetAirportsAsync(query);
+            airports = await AirportService.GetAirportsAsync(Value);
         }
         else
         {
@@ -41,7 +57,7 @@
 
     private void SelectAirport(Airport airport)
     {
-        query = $"{airport.name} ({airport.iataCode})";
+        Value = $"{airport.name} ({airport.iataCode})";
         airports.Clear();
     }
 }
