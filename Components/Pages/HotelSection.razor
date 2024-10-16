@@ -1,0 +1,30 @@
+﻿@inject VoyaQuest.Interfaces.IHotelbedsService HotelbedsService
+
+<div>
+    <h2>Hotelbeds API Status</h2>
+    <p>@apiStatus</p>
+</div>
+
+@code {
+    private string apiStatus;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var response = await HotelbedsService.GetApiStatusAsync();
+            if (response.IsSuccessStatusCode)
+            {
+                apiStatus = await response.Content.ReadAsStringAsync();
+            }
+            else
+            {
+                apiStatus = $"Error: {response.StatusCode}";
+            }
+        }
+        catch (Exception ex)
+        {
+            apiStatus = $"Exception: {ex.Message}";
+        }
+    }
+}

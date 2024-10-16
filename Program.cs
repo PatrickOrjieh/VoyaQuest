@@ -24,6 +24,9 @@ namespace VoyaQuest
             //Register the FlightSearchService
             builder.Services.AddHttpClient<IFlightServiceSearch, FlightServiceSearch>();
 
+            //Register the HotelbedsService
+            builder.Services.AddHttpClient<IHotelbedsService, HotelbedsService>();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
