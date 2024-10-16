@@ -21,6 +21,9 @@ namespace VoyaQuest
             // Add HttpClient for Amadeus API Service
             builder.Services.AddHttpClient<IAirportAutocompleteService, AmadeusAutocompleteService>();
 
+            //Register the FlightSearchService
+            builder.Services.AddHttpClient<IFlightServiceSearch, FlightServiceSearch>();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

@@ -1,7 +1,6 @@
 ﻿using System.Net.Http.Headers;
 using System.Text.Json;
 using VoyaQuest.Interfaces;
-using VoyaQuest.Models;
 using VoyaQuest.Models.AmadeusAirportResponse;
 
 namespace VoyaQuest.Services
@@ -37,7 +36,7 @@ namespace VoyaQuest.Services
                 HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
 
-                HttpResponseMessage response = await _httpClient.SendAsync(request);
+                HttpResponseMessage response = await SendAmadeusRequestAsync(request);
 
                 if (response.IsSuccessStatusCode)
                 {

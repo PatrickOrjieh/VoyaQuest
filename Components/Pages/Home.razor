@@ -1,7 +1,11 @@
 ﻿@page "/"
 @using VoyaQuest.Components.Shared
 @using VoyaQuest.Models
+@using VoyaQuest.Models.FlightOffersResponse
 @using VoyaQuest.Components.Forms
+@using VoyaQuest.Interfaces
+
+@inject IFlightServiceSearch FlightServiceSearch
 
 <PageTitle>Home</PageTitle>
 
@@ -34,7 +38,7 @@
                     <div class="col-md-2">
                         <select id="cabinClass" class="form-select" @bind="searchModel.CabinClass">
                             <option value="economy">Economy</option>
-                            <option value="premium-economy">Premium Economy</option>
+                            <option value="premium_economy">Premium Economy</option>
                             <option value="business">Business</option>
                             <option value="first">First</option>
                         </select>
@@ -85,7 +89,7 @@
     private string errorMessage = "";
 
     // Event handler to handle valid form submission
-    private void HandleValidSubmit()
+    private async void HandleValidSubmit()
     {
         if (!IsFormValid())
         {
@@ -95,6 +99,65 @@
         {
             // Form is valid, submit the form. TODO: Implement form submission logic with API
             Console.WriteLine($"SearchModel: {searchModel}");
+
+            List<FlightOffer> flightOffers = await FlightServiceSearch.SearchFlightsAsync(searchModel);
+
+            // Console the result for now
+            foreach (FlightOffer flightOffer in flightOffers)
+            {
+                // Access the basic flight offer information
+                Console.WriteLine($"Flight Offer ID: {flightOffer.id}");
+                Console.WriteLine($"Source: {flightOffer.source}");
+                Console.WriteLine($"Total Price: {flightOffer.price.currency} {flightOffer.price.total}");
+                Console.WriteLine($"Base Price: {flightOffer.price._base}");
+                Console.WriteLine($"Grand Total: {flightOffer.price.grandTotal}");
+
+                // Loop through itineraries
+                foreach (Itinerary itinerary in flightOffer.itineraries)
+                {
+                    Console.WriteLine($"Itinerary Duration: {itinerary.duration}");
+
+                    // Loop through segments in the itinerary (each segment represents a leg of the flight)
+                    foreach (Segment segment in itinerary.segments)
+                    {
+                        Console.WriteLine($"Flight Segment ID: {segment.id}");
+                        Console.WriteLine($"Carrier Code: {segment.carrierCode}");
+                        Console.WriteLine($"Flight Number: {segment.number}");
+                        Console.WriteLine($"Departure Airport: {segment.departure.iataCode}, Terminal: {segment.departure.terminal}, Time: {segment.departure.at}");
+                        Console.WriteLine($"Arrival Airport: {segment.arrival.iataCode}, Terminal: {segment.arrival.terminal}, Time: {segment.arrival.at}");
+                        Console.WriteLine($"Duration: {segment.duration}");
+                        Console.WriteLine($"Number of Stops: {segment.numberOfStops}");
+                        Console.WriteLine($"Aircraft Code: {segment.aircraft.code}");
+                        Console.WriteLine($"Operating Carrier: {segment.operating.carrierCode}");
+                    }
+                }
+
+                // Access pricing options
+                Console.WriteLine($"Included Checked Bags Only: {flightOffer.pricingOptions.includedCheckedBagsOnly}");
+                Console.WriteLine("Fare Type(s): " + string.Join(", ", flightOffer.pricingOptions.fareType));
+
+                // Loop through traveler pricing
+                foreach (TravelerPricing travelerPricing in flightOffer.travelerPricings)
+                {
+                    Console.WriteLine($"Traveler Type: {travelerPricing.travelerType}");
+                    Console.WriteLine($"Traveler Price: {travelerPricing.price.currency} {travelerPricing.price.total}");
+
+                    // Loop through fare details by segment
+                    foreach (FareDetailsBySegment fareDetails in travelerPricing.fareDetailsBySegment)
+                    {
+                        Console.WriteLine($"Segment ID: {fareDetails.segmentId}");
+                        Console.WriteLine($"Cabin Class: {fareDetails.cabin}");
+                        Console.WriteLine($"Fare Basis: {fareDetails.fareBasis}");
+                        Console.WriteLine($"Branded Fare: {fareDetails.brandedFare}");
+                        Console.WriteLine($"Branded Fare Label: {fareDetails.brandedFareLabel}");
+                        Console.WriteLine($"Class: {fareDetails._class}");
+                        Console.WriteLine($"Included Checked Bags: {fareDetails.includedCheckedBags.quantity}");
+                    }
+                }
+
+                Console.WriteLine("\n--- End of One Flight Offer ---\n");
+            }
+
         }
     }
 
