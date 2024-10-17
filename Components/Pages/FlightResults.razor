@@ -1,0 +1,183 @@
+﻿@page "/flight-results"
+@using VoyaQuest.Models
+@using VoyaQuest.Interfaces
+@using VoyaQuest.Models.FlightOffersResponse
+@using System.Web
+@inject IFlightServiceSearch FlightServiceSearch
+@inject NavigationManager NavigationManager
+
+<PageTitle>Flight Results</PageTitle>
+
+<div class="container mt-5">
+    <div class="flight-summary-section mb-4 p-4 rounded shadow-sm text-white" style="background-color: #ef732a;">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h2 class="text-white mb-1">Flight Results</h2>
+                <p class="text-white">Explore the best options based on your search criteria</p>
+            </div>
+            <div>
+                <span class="badge bg-white text-dark fs-5">@flightOffers?.Count() Offers Available</span>
+            </div>
+        </div>
+        <div class="search-summary">
+            <div class="row">
+                <div class="col-md-3">
+                    <strong>From:</strong> @from
+                </div>
+                <div class="col-md-3">
+                    <strong>To:</strong> @to
+                </div>
+                <div class="col-md-3">
+                    <strong>Trip Type:</strong> @(tripType == "return" ? "Return" : "One Way")
+                </div>
+                <div class="col-md-3">
+                    <strong>Departure Date:</strong> @departureDate?.ToString("MMM dd, yyyy")
+                </div>
+                @if (tripType == "return")
+                {
+                    <div class="col-md-3">
+                        <strong>Return Date:</strong> @returnDate?.ToString("MMM dd, yyyy")
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        @if (flightOffers != null && flightOffers.Any())
+        {
+            @foreach (var flightOffer in paginatedFlightOffers)
+            {
+                <div class="col-12 mb-4">
+                    <div class="card flight-card shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="flight-info">
+                                    @foreach (var itinerary in flightOffer.itineraries)
+                                    {
+                                        <div class="flight-segment mb-3">
+                                            <div class="d-flex align-items-center">
+                                                <div class="flight-departure text-center me-3">
+                                                    <div class="airport-code">@itinerary.segments.First().departure.iataCode</div>
+                                                    <div class="flight-time">@itinerary.segments.First().departure.at.ToString("HH:mm")</div>
+                                                </div>
+
+                                                <div class="flight-line position-relative mx-3">
+                                                    <div class="line"></div>
+                                                    <i class="fas fa-plane plane-icon position-absolute"></i>
+                                                </div>
+
+                                                <div class="flight-arrival text-center ms-3">
+                                                    <div class="airport-code">@itinerary.segments.Last().arrival.iataCode</div>
+                                                    <div class="flight-time">@itinerary.segments.Last().arrival.at.ToString("HH:mm")</div>
+                                                </div>
+
+                                                <div class="flight-duration ms-4 text-muted">
+                                                    <i class="far fa-clock"></i> @itinerary.duration.Replace("PT", "").ToLower()
+                                                </div>
+                                            </div>
+
+                                            <div class="additional-details mt-3">
+                                                <span><i class="fas fa-plane"></i> Flight: @string.Join(", ", itinerary.segments.Select(s => s.carrierCode + " " + s.number))</span>
+                                                <span class="ms-4"><i class="fas fa-suitcase-rolling"></i> Cabin: @flightOffer.travelerPricings.FirstOrDefault()?.fareDetailsBySegment.FirstOrDefault()?.cabin</span>
+                                                <span class="ms-4"><i class="fas fa-stopwatch"></i> Stops: @(itinerary.segments.Count() - 1)</span>
+                                                <span class="ms-4"><i class="fas fa-user"></i> Seats Available: @flightOffer.numberOfBookableSeats</span>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+
+                                <div class="flight-price text-end">
+                                    <h4 class="text-black mb-3">@flightOffer.price.currency @flightOffer.price.total</h4>
+                                    <button class="btn btn-pill">Book Now</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <div class="pagination-controls mt-4">
+                <button class="btn btn-pill btn-outline-primary me-2" @onclick="PrevPage" disabled="@(!canGoPrev)">Previous</button>
+                <button class="btn btn-pill btn-outline-primary" @onclick="NextPage" disabled="@(!canGoNext)">Next</button>
+            </div>
+        }
+        else
+        {
+            <div class="col-12 text-center">
+                <div class="alert alert-warning">
+                    <h5>No flights available for the selected criteria.</h5>
+                    <p>Try adjusting your search or check back later for updated offers.</p>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private string from;
+    private string to;
+    private string tripType;
+    private DateTime? departureDate;
+    private DateTime? returnDate;
+    private int adults;
+    private int children;
+    private string cabinClass;
+    private List<FlightOffer> flightOffers;
+    private List<FlightOffer> paginatedFlightOffers;
+    private int currentPage = 1;
+    private int pageSize = 5;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Retrieve the query parameters from the URL
+        var uri = new Uri(NavigationManager.Uri);
+        var query = HttpUtility.ParseQueryString(uri.Query);
+
+        from = query["from"];
+        to = query["to"];
+        tripType = query["tripType"];
+        departureDate = DateTime.Parse(query["departureDate"]);
+        returnDate = tripType == "return" ? DateTime.Parse(query["returnDate"]) : (DateTime?)null;
+        adults = int.Parse(query["adults"]);
+        children = int.Parse(query["children"]);
+        cabinClass = query["cabinClass"];
+
+        // Create the SearchModel from query parameters
+        var searchModel = new SearchModel
+            {
+                DepartureAirport = from,
+                DestinationAirport = to,
+                TripType = tripType,
+                DepartureDate = departureDate,
+                ReturnDate = returnDate,
+                TravelDetails = new TravelDetails { AdultCount = adults, ChildCount = children },
+                CabinClass = cabinClass
+            };
+
+        // Call the API to fetch flight offers based on the search model
+        flightOffers = await FlightServiceSearch.SearchFlightsAsync(searchModel);
+
+        ApplyPagination();
+    }
+
+    private void ApplyPagination()
+    {
+        paginatedFlightOffers = flightOffers.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+    }
+
+    private void NextPage()
+    {
+        currentPage++;
+        ApplyPagination();
+    }
+
+    private void PrevPage()
+    {
+        currentPage--;
+        ApplyPagination();
+    }
+
+    private bool canGoPrev => currentPage > 1;
+    private bool canGoNext => flightOffers.Count > currentPage * pageSize;
+}

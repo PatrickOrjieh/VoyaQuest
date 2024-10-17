@@ -1,0 +1,140 @@
+﻿.flight-summary-section {
+    background-color: #ef732a;
+    border-radius: 10px;
+    padding: 20px;
+    color: white;
+    margin-bottom: 30px;
+}
+
+.flight-summary-section h2 {
+    font-size: 2.5rem;
+}
+
+.flight-summary-section p {
+    font-size: 1.1rem;
+}
+
+.search-summary {
+    font-size: 1rem;
+    margin-top: 10px;
+}
+
+.search-summary div {
+    margin-bottom: 10px;
+}
+
+.flight-card {
+    border-radius: 10px;
+    background-color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.flight-card .card-body {
+    padding: 20px;
+}
+
+.flight-info {
+    font-size: 1.1rem;
+}
+
+.flight-segment {
+    margin-bottom: 20px;
+}
+
+.flight-departure, .flight-arrival {
+    text-align: center;
+    min-width: 100px;
+}
+
+.flight-departure .airport-code,
+.flight-arrival .airport-code {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.flight-time {
+    font-size: 1rem;
+    color: #6c757d;
+}
+
+.flight-line {
+    position: relative;
+    width: 100px;
+    height: 1px;
+    background-color: #dcdcdc;
+}
+
+.plane-icon {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #fff;
+    color: #ef732a;
+    font-size: 1.2rem;
+}
+
+.flight-duration {
+    font-size: 1rem;
+    color: #6c757d;
+}
+
+.additional-details span {
+    display: inline-block;
+    margin-right: 20px;
+    font-size: 0.95rem;
+    color: #555;
+}
+
+.flight-price h4 {
+    font-size: 1.5rem;
+    color: #000000;
+}
+
+.flight-details {
+    background-color: #f8f9fa;
+    border-radius: 0 0 10px 10px;
+    padding: 15px;
+    font-size: 1rem;
+}
+
+.pagination-controls {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.btn-pill {
+    background-color: transparent;
+    color: #000000;
+    border: 2px solid #000000;
+    border-radius: 50px;
+    padding: 10px 20px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.btn-pill:hover,
+.btn-pill:focus {
+    background-color: #ef732a;
+    color: #ffffff;
+    border-color: #ef732a;
+}
+
+@media (max-width: 768px) {
+    .flight-card {
+        margin-bottom: 30px;
+    }
+
+    .flight-info {
+        text-align: center;
+    }
+
+    .flight-price {
+        text-align: center;
+        margin-top: 15px;
+    }
+
+    .flight-departure, .flight-arrival {
+        min-width: auto;
+    }
+}
