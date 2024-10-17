@@ -28,32 +28,16 @@
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                 <li class="nav-item dropdown d-flex align-items-center">
                     <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" id="dropdownCurrency" data-bs-toggle="dropdown" aria-expanded="false">
-                        <img src="https://cdn.britannica.com/79/4479-050-6EF87027/flag-Stars-and-Stripes-May-1-1795.jpg" alt="Country Flag" width="24" height="16" class="me-1">
-                        <span class="me-2">USD</span>
-                        <span class="me-3">($)</span>
+                        <img src="@GetCurrencyFlag(SelectedCurrency)" alt="Currency Icon" width="24" height="16" class="me-1">
+                        <span class="me-2">@SelectedCurrency</span>
                     </a>
-
                     <div class="dropdown-menu p-3" aria-labelledby="dropdownCurrency">
-                        <div class="mb-3">
-                            <label for="selectCountry" class="form-label">Select Country</label>
-                            <select class="form-select" id="selectCountry">
-                                <option value="us" selected>United States</option>
-                                <option value="gb">United Kingdom</option>
-                                <option value="fr">France</option>
-                                <option value="de">Germany</option>
-                                <option value="jp">Japan</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="selectCurrency" class="form-label">Select Currency</label>
-                            <select class="form-select" id="selectCurrency">
-                                <option value="usd" selected>USD - United States Dollar</option>
-                                <option value="eur">EUR - Euro</option>
-                                <option value="gbp">GBP - British Pound</option>
-                                <option value="jpy">JPY - Japanese Yen</option>
-                            </select>
-                        </div>
+                        <select class="form-select" @onchange="HandleCurrencyChange">
+                            @foreach (Currency currency in Enum.GetValues(typeof(Currency)))
+                            {
+                                <option value="@currency" selected="@(currency == SelectedCurrency)">@currency</option>
+                            }
+                        </select>
                     </div>
                 </li>
 
@@ -74,28 +58,28 @@
     </div>
 </nav>
 
-@code{
-    private Currency selectedCurrency = Currency.USD;
+@code {
+    [Parameter] public Currency SelectedCurrency { get; set; }
+    [Parameter] public EventCallback<Currency> OnCurrencyChange { get; set; }
 
-    private async Task OnCurrencyChange(ChangeEventArgs e)
+    private async Task HandleCurrencyChange(ChangeEventArgs e)
     {
-        selectedCurrency = Enum.Parse<Currency>(e.Value.ToString());
-        await UpdateFlightPrices();
+        var newCurrency = Enum.Parse<Currency>(e.Value.ToString());
+        await OnCurrencyChange.InvokeAsync(newCurrency);
     }
 
     private string GetCurrencyFlag(Currency currency)
     {
         return currency switch
         {
-            // Images gotten from https://www.flaticon.com/search 
-            Currency.USD => "https://cdn.britannica.com/79/4479-050-6EF87027/flag-Stars-and-Stripes.jpg",
-            Currency.EUR => "https://upload.wikimedia.org/wikipedia/commons/b/b7/Flag_of_Europe.svg",
-            Currency.GBP => "https://upload.wikimedia.org/wikipedia/en/a/ae/Flag_of_the_United_Kingdom.svg",
-            Currency.JPY => "https://upload.wikimedia.org/wikipedia/commons/9/9e/Flag_of_Japan.svg",
-            Currency.CAD => "https://upload.wikimedia.org/wikipedia/commons/c/cf/Flag_of_Canada.svg",
-            Currency.AUD => "https://upload.wikimedia.org/wikipedia/commons/b/b9/Flag_of_Australia.svg",
-            _ => "https://upload.wikimedia.org/wikipedia/commons/6/6a/Default_flag.jpg"
+            // Images gotten from https://www.flaticon.com/search
+            Currency.USD => "images/dollar.png",
+            Currency.EUR => "images/money.png",
+            Currency.GBP => "images/pound.png",
+            Currency.JPY => "images/yen.png",
+            Currency.CAD => "images/canadian-dollar.png",
+            Currency.AUD => "images/austral.png",
+            _ => "images/default_currency.png"
         };
     }
-
 }

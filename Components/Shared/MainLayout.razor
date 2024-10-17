@@ -1,9 +1,28 @@
-﻿@inherits LayoutComponentBase
+﻿@using VoyaQuest.Enums
+@inherits LayoutComponentBase
 
 <div class="page">
-    <NavMenu />
+    <NavMenu SelectedCurrency="selectedCurrency" OnCurrencyChange="HandleCurrencyChange" />
     <div class="main">
-        @Body
+        <CascadingValue Value="selectedCurrency">
+            @Body
+        </CascadingValue>
     </div>
     <Footer />
 </div>
+
+@code {
+    private Currency selectedCurrency = Currency.USD;
+
+    private async Task HandleCurrencyChange(Currency newCurrency)
+    {
+        selectedCurrency = newCurrency;
+        await UpdateFlightPrices();
+    }
+
+    private Task UpdateFlightPrices()
+    {
+        Console.WriteLine($"Currency changed to: {selectedCurrency}");
+        return Task.CompletedTask;
+    }
+}

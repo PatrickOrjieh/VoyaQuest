@@ -3,8 +3,10 @@
 @using VoyaQuest.Interfaces
 @using VoyaQuest.Models.FlightOffersResponse
 @using System.Web
+@using VoyaQuest.Enums
 @inject IFlightServiceSearch FlightServiceSearch
 @inject NavigationManager NavigationManager
+@inject ICurrencyService CurrencyService
 
 <PageTitle>Flight Results</PageTitle>
 
@@ -222,4 +224,31 @@
 
     private bool canGoPrev => currentPage > 1;
     private bool canGoNext => flightOffers.Count > currentPage * pageSize;
+
+    [CascadingParameter] public Currency SelectedCurrency { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        // Update flight prices when SelectedCurrency changes
+        await UpdateFlightPrices();
+    }
+
+    private async Task UpdateFlightPrices()
+    {
+        foreach (var flightOffer in flightOffers)
+        {
+            if (double.TryParse(flightOffer.price.total, out double decimalPrice))
+            {
+                var convertedPrice = await CurrencyService.ConvertAmountAsync(decimalPrice, flightOffer.price.currency, SelectedCurrency.ToString());
+
+                flightOffer.price.total = convertedPrice.ToString("F2"); // Format to 2 decimal places
+                flightOffer.price.currency = SelectedCurrency.ToString();
+            }
+            else
+            {
+                Console.WriteLine($"Failed to parse price: {flightOffer.price.total}");
+            }
+        }
+        StateHasChanged();
+    }
 }

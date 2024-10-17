@@ -27,6 +27,9 @@ namespace VoyaQuest
             //Register the HotelbedsService
             builder.Services.AddHttpClient<IHotelbedsService, HotelbedsService>();
 
+            //Register the CurrencyService
+            builder.Services.AddHttpClient<ICurrencyService, CurrencyService>();
+
             //Register the cache service
             builder.Services.AddMemoryCache();
 
