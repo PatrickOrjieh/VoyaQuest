@@ -102,8 +102,6 @@
         {
             // Form is valid, submit the form. TODO: Implement form submission logic with API
             Console.WriteLine($"SearchModel: {searchModel}");
-
-            // List<FlightOffer> flightOffers = await FlightServiceSearch.SearchFlightsAsync(searchModel);
             
             //To build the query string
             var queryString = $"?from={searchModel.DepartureAirport}&to={searchModel.DestinationAirport}&tripType={searchModel.TripType}" +

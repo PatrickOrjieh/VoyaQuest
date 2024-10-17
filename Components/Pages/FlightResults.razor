@@ -4,7 +4,9 @@
 @using VoyaQuest.Models.FlightOffersResponse
 @using System.Web
 @using VoyaQuest.Enums
+@using VoyaQuest.Models.HotelbedsResponse
 @inject IFlightServiceSearch FlightServiceSearch
+@inject IHotelbedsService HotelbedsService
 @inject NavigationManager NavigationManager
 @inject ICurrencyService CurrencyService
 
@@ -50,6 +52,9 @@
         {
             @foreach (var flightOffer in paginatedFlightOffers)
             {
+                // Get the arrival IATA code from the flight offer
+                string arrivalCityIataCode = flightOffer.itineraries.First().segments.Last().arrival.iataCode;
+
                 <div class="col-12 mb-4">
                     <div class="card flight-card shadow-sm">
                         <div class="card-body">
@@ -92,7 +97,11 @@
 
                                 <div class="flight-price text-end">
                                     <h5 class="text-black mb-3">@flightOffer.price.currency @flightOffer.price.total</h5>
-                                    <button class="btn btn-pill">Book Now</button>
+                                    <button class="btn btn-pill me-2">Book Now</button>
+                                    @if (TryGetCityFromEnum(arrivalCityIataCode, out string matchedCity))
+                                    {
+                                        <button class="btn btn-pill btn-hotel" @onclick="@(() => ShowHotels(matchedCity))">View Hotels</button>
+                                    }
                                 </div>
                             </div>
                         </div>
@@ -138,6 +147,62 @@
             </div>
         }
     </div>
+
+    @if (showHotels)
+    {
+        <div class="hotel-modal">
+            <div class="modal-content">
+                <span class="close-button" @onclick="CloseModal">&times;</span>
+                <h2 class="modal-title">Available Hotels</h2>
+                <table class="hotel-table">
+                    <thead>
+                        <tr>
+                            <th>Hotel Name</th>
+                            <th>City</th>
+                            <th>Rating</th>
+                            <th>License</th>
+                            <th>Email</th>
+                            <th>Website</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var hotel in filteredHotels)
+                        {
+                            <tr>
+                                <td>@hotel.name?.content</td>
+                                <td>@hotel.city?.content</td>
+                                <td>
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        if (i <= Convert.ToInt32(hotel.S2C?.Substring(0, 1)))
+                                        {
+                                            <i class="fas fa-star" style="color: #ff9800;"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="far fa-star" style="color: #ff9800;"></i>
+                                        }
+                                    }
+                                </td>
+                                <td>@hotel.license</td>
+                                <td>@hotel.email</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(hotel.web))
+                                    {
+                                        <a href="@("https://" + hotel.web)" target="_blank" class="visit-hotel-btn">Visit</a>
+                                    }
+                                    else
+                                    {
+                                        <span>N/A</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
 </div>
 
 @code {
@@ -154,6 +219,12 @@
     private int currentPage = 1;
     private int pageSize = 5;
     private int totalPages = 0;
+    private List<Hotel> hotels;
+    private List<Hotel> filteredHotels = new();
+    private bool showHotels = false;
+    private bool canGoPrev => currentPage > 1;
+    private bool canGoNext => flightOffers.Count > currentPage * pageSize;
+    [CascadingParameter] public Currency SelectedCurrency { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -184,6 +255,9 @@
 
         // Call the API to fetch flight offers based on the search model
         flightOffers = await FlightServiceSearch.SearchFlightsAsync(searchModel);
+
+        //call the API to fetch hotels
+        hotels = await HotelbedsService.GetHotelsAsync();
 
         // Calculate the total number of pages
         totalPages = (int)Math.Ceiling((double)flightOffers.Count / pageSize);
@@ -220,12 +294,7 @@
         ApplyPagination();
 
         StateHasChanged();
-    }
-
-    private bool canGoPrev => currentPage > 1;
-    private bool canGoNext => flightOffers.Count > currentPage * pageSize;
-
-    [CascadingParameter] public Currency SelectedCurrency { get; set; }
+    } 
 
     protected override async Task OnParametersSetAsync()
     {
@@ -241,7 +310,7 @@
             {
                 var convertedPrice = await CurrencyService.ConvertAmountAsync(decimalPrice, flightOffer.price.currency, SelectedCurrency.ToString());
 
-                flightOffer.price.total = convertedPrice.ToString("F2"); // Format to 2 decimal places
+                flightOffer.price.total = convertedPrice.ToString("F2");
                 flightOffer.price.currency = SelectedCurrency.ToString();
             }
             else
@@ -250,5 +319,40 @@
             }
         }
         StateHasChanged();
+    }
+
+    /// <summary>
+    /// This method is used to show hotels based on the selected city
+    /// </summary>
+    /// <param name="city">The city to filter hotels by</param>
+    private void ShowHotels(string city)
+    {
+        filteredHotels = hotels.Where(h => h.city?.content.ToUpper() == city.ToUpper()).ToList();
+        showHotels = true;
+    }
+
+    private void CloseModal()
+    {
+        showHotels = false;
+    }
+
+    // Function to get the city from the enum based on the IATA code
+    private bool TryGetCityFromEnum(string iataCode, out string cityName)
+    {
+        cityName = null;
+
+        // Loop through the IataCity enum and check if any enum value ends with the IATA code
+        foreach (var city in Enum.GetValues(typeof(IataCity)))
+        {
+            string enumValue = city.ToString().ToUpper();
+            if (enumValue.EndsWith($"_{iataCode.ToUpper()}"))
+            {
+                // Remove the IATA code  from the enum value to get the city name
+                cityName = enumValue.Split('_')[0];
+                return true;
+            }
+        }
+
+        return false;
     }
 }

@@ -50,6 +50,7 @@ namespace VoyaQuest.Services
             string cacheKey = $"{fromCurrency}_{toCurrency}_rate";
             if (_cache.TryGetValue(cacheKey, out double cachedRate))
             {
+                Console.WriteLine("Using cached rate");
                 return cachedRate;
             }
 
