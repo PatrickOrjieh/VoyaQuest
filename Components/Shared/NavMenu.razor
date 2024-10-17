@@ -28,11 +28,11 @@
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                 <li class="nav-item dropdown d-flex align-items-center">
                     <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" id="dropdownCurrency" data-bs-toggle="dropdown" aria-expanded="false">
-                        <img src="@GetCurrencyFlag(SelectedCurrency)" alt="Currency Icon" width="24" height="16" class="me-1">
+                        <img src="@GetCurrencyFlag(SelectedCurrency)" alt="Currency Icon" width="24" height="24" class="me-1">
                         <span class="me-2">@SelectedCurrency</span>
                     </a>
-                    <div class="dropdown-menu p-3" aria-labelledby="dropdownCurrency">
-                        <select class="form-select" @onchange="HandleCurrencyChange">
+                    <div class="dropdown-menu custom-dropdown p-3" aria-labelledby="dropdownCurrency">
+                        <select class="custom-select" @onchange="HandleCurrencyChange">
                             @foreach (Currency currency in Enum.GetValues(typeof(Currency)))
                             {
                                 <option value="@currency" selected="@(currency == SelectedCurrency)">@currency</option>
@@ -72,13 +72,13 @@
     {
         return currency switch
         {
-            // Images gotten from https://www.flaticon.com/search
-            Currency.USD => "images/dollar.png",
-            Currency.EUR => "images/money.png",
-            Currency.GBP => "images/pound.png",
-            Currency.JPY => "images/yen.png",
-            Currency.CAD => "images/canadian-dollar.png",
-            Currency.AUD => "images/austral.png",
+            // Images gotten from https://icons8.com/icons/
+            Currency.USD => "images/icons8-dollar-50.png",
+            Currency.EUR => "images/icons8-euro-50.png",
+            Currency.GBP => "images/icons8-sterling-50.png",
+            Currency.JPY => "images/icons8-yen-50.png",
+            Currency.CAD => "images/icons8-cad-32.png",
+            Currency.AUD => "images/icons8-aud-24.png",
             _ => "images/default_currency.png"
         };
     }

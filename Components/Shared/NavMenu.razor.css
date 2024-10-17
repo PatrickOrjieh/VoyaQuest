@@ -52,3 +52,29 @@
     border-bottom: 1px solid grey;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
+
+.custom-dropdown {
+    background-color: #ffffff;
+    border: 1px solid #dddddd;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    width: 200px;
+    padding: 10px;
+}
+
+.custom-select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+    font-size: 16px;
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+}
+
+.custom-select:focus {
+    outline: none;
+    border-color: #ef732a;
+    box-shadow: 0 0 4px rgba(239, 115, 42, 0.3);
+}
