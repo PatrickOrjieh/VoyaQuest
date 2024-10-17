@@ -38,8 +38,7 @@ namespace VoyaQuest.Services
                                     $"children={searchModel.TravelDetails.ChildCount}&" +
                                     $"travelClass={searchModel.CabinClass.ToUpper()}&" +
                                     $"nonStop=true&" +
-                                    $"currencyCode=USD&" +
-                                    $"max=2";
+                                    $"currencyCode=USD&";
 
                 HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);

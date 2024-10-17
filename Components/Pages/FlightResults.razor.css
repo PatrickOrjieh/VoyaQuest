@@ -109,7 +109,7 @@
     color: #000000;
     border: 2px solid #000000;
     border-radius: 50px;
-    padding: 10px 20px;
+    padding: 5px 15px;
     transition: background-color 0.3s, color 0.3s;
 }
 
@@ -137,4 +137,47 @@
     .flight-departure, .flight-arrival {
         min-width: auto;
     }
+}
+
+.pagination {
+    display: flex;
+    padding-left: 0;
+    list-style: none;
+    border-radius: .25rem;
+}
+
+.pagination .page-item {
+    margin: 0 5px;
+}
+
+.pagination .page-item .page-link {
+    color: #000;
+    border: 1px solid #ddd;
+    border-radius: 50px;
+    padding: 10px 15px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #ef732a;
+    color: #fff;
+    border-color: #ef732a;
+}
+
+.pagination .page-item .page-link:hover {
+    background-color: #ef732a;
+    color: #fff;
+    border-color: #ef732a;
+}
+
+.pagination .disabled .page-link {
+    pointer-events: none;
+    background-color: #f8f9fa;
+    color: #6c757d;
+    border-color: #ddd;
+}
+
+.page-link:focus {
+    box-shadow: none;
+    outline: none;
 }

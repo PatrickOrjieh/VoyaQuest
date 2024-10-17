@@ -59,6 +59,7 @@
                                             <div class="d-flex align-items-center">
                                                 <div class="flight-departure text-center me-3">
                                                     <div class="airport-code">@itinerary.segments.First().departure.iataCode</div>
+                                                    <div class="flight-time">Terminal: @itinerary.segments.Last().departure.terminal</div>
                                                     <div class="flight-time">@itinerary.segments.First().departure.at.ToString("HH:mm")</div>
                                                 </div>
 
@@ -69,6 +70,7 @@
 
                                                 <div class="flight-arrival text-center ms-3">
                                                     <div class="airport-code">@itinerary.segments.Last().arrival.iataCode</div>
+                                                    <div class="flight-time">Terminal: @itinerary.segments.Last().arrival.terminal</div>
                                                     <div class="flight-time">@itinerary.segments.Last().arrival.at.ToString("HH:mm")</div>
                                                 </div>
 
@@ -80,7 +82,6 @@
                                             <div class="additional-details mt-3">
                                                 <span><i class="fas fa-plane"></i> Flight: @string.Join(", ", itinerary.segments.Select(s => s.carrierCode + " " + s.number))</span>
                                                 <span class="ms-4"><i class="fas fa-suitcase-rolling"></i> Cabin: @flightOffer.travelerPricings.FirstOrDefault()?.fareDetailsBySegment.FirstOrDefault()?.cabin</span>
-                                                <span class="ms-4"><i class="fas fa-stopwatch"></i> Stops: @(itinerary.segments.Count() - 1)</span>
                                                 <span class="ms-4"><i class="fas fa-user"></i> Seats Available: @flightOffer.numberOfBookableSeats</span>
                                             </div>
                                         </div>
@@ -88,7 +89,7 @@
                                 </div>
 
                                 <div class="flight-price text-end">
-                                    <h4 class="text-black mb-3">@flightOffer.price.currency @flightOffer.price.total</h4>
+                                    <h5 class="text-black mb-3">@flightOffer.price.currency @flightOffer.price.total</h5>
                                     <button class="btn btn-pill">Book Now</button>
                                 </div>
                             </div>
@@ -98,9 +99,32 @@
             }
 
             <div class="pagination-controls mt-4">
-                <button class="btn btn-pill btn-outline-primary me-2" @onclick="PrevPage" disabled="@(!canGoPrev)">Previous</button>
-                <button class="btn btn-pill btn-outline-primary" @onclick="NextPage" disabled="@(!canGoNext)">Next</button>
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                            <button class="page-link" @onclick="PrevPage" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </button>
+                        </li>
+
+                        @for (var i = 1; i <= totalPages; i++)
+                        {
+                            var pageNumber = i;
+
+                            <li class="page-item @(currentPage == i ? "active" : "")">
+                                <button class="page-link" @onclick="@(() => GoToPage(pageNumber))">@i</button>
+                            </li>
+                        }
+
+                        <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                            <button class="page-link" @onclick="NextPage" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </button>
+                        </li>
+                    </ul>
+                </nav>
             </div>
+
         }
         else
         {
@@ -127,6 +151,7 @@
     private List<FlightOffer> paginatedFlightOffers;
     private int currentPage = 1;
     private int pageSize = 5;
+    private int totalPages = 0;
 
     protected override async Task OnInitializedAsync()
     {
@@ -158,6 +183,9 @@
         // Call the API to fetch flight offers based on the search model
         flightOffers = await FlightServiceSearch.SearchFlightsAsync(searchModel);
 
+        // Calculate the total number of pages
+        totalPages = (int)Math.Ceiling((double)flightOffers.Count / pageSize);
+
         ApplyPagination();
     }
 
@@ -168,14 +196,29 @@
 
     private void NextPage()
     {
-        currentPage++;
-        ApplyPagination();
+        if (currentPage < totalPages)
+        {
+            currentPage++;
+            ApplyPagination();
+        }
     }
 
     private void PrevPage()
     {
-        currentPage--;
+        if (currentPage > 1)
+        {
+            currentPage--;
+            ApplyPagination();
+        }
+    }
+
+    private void GoToPage(int page)
+    {
+        Console.WriteLine($"Go to page {page}");
+        currentPage = page;
         ApplyPagination();
+
+        StateHasChanged();
     }
 
     private bool canGoPrev => currentPage > 1;
