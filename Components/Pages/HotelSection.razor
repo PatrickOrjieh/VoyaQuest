@@ -1,30 +1,38 @@
-﻿@inject VoyaQuest.Interfaces.IHotelbedsService HotelbedsService
+﻿@using VoyaQuest.Models.HotelbedsResponse
+@inject VoyaQuest.Interfaces.IHotelbedsService HotelbedsService
 
 <div>
-    <h2>Hotelbeds API Status</h2>
-    <p>@apiStatus</p>
+    <h2>Hotel List</h2>
+    <ul>
+        @if (hotels != null && hotels.Any())
+        {
+            Console.WriteLine("Hotels available");
+            @foreach (var hotel in hotels)
+            {
+                <li>
+                    <h3>@hotel.name</h3>
+                </li>
+            }
+        }
+        else
+        {
+            <p>No hotels available at the moment.</p>
+        }
+    </ul>
 </div>
 
 @code {
-    private string apiStatus;
+    private List<Hotel> hotels;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            var response = await HotelbedsService.GetApiStatusAsync();
-            if (response.IsSuccessStatusCode)
-            {
-                apiStatus = await response.Content.ReadAsStringAsync();
-            }
-            else
-            {
-                apiStatus = $"Error: {response.StatusCode}";
-            }
+            hotels = await HotelbedsService.GetHotelsAsync();
         }
         catch (Exception ex)
         {
-            apiStatus = $"Exception: {ex.Message}";
+            Console.WriteLine($"Exception: {ex.Message}");
         }
     }
 }

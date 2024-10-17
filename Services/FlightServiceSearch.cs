@@ -29,7 +29,6 @@ namespace VoyaQuest.Services
 
             try
             {
-                // Build the query string with the search parameters
                 string requestUrl = $"{FlightOffersSearchUrl}?" +
                                     $"originLocationCode={ExtractIataCode(searchModel.DepartureAirport)}&" +
                                     $"destinationLocationCode={ExtractIataCode(searchModel.DestinationAirport)}&" +

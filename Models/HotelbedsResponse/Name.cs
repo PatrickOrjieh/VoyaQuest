@@ -2,7 +2,6 @@
 {
     public class Name
     {
-        public string content { get; set; }
-        public string languageCode { get; set; }
+        public string? content { get; set; }
     }
 }

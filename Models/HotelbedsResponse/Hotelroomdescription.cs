@@ -1,8 +1,7 @@
 ﻿namespace VoyaQuest.Models.HotelbedsResponse
 {
-    public class Hotelroomdescription
+    public class HotelRoomDescription
     {
-        public string content { get; set; }
-        public string languageCode { get; set; }
+        public string? content { get; set; }
     }
 }

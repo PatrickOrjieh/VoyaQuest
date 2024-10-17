@@ -1,10 +1,10 @@
 ﻿namespace VoyaQuest.Models.HotelbedsResponse
 {
-    public class Roomstay
+    public class RoomStay
     {
-        public string description { get; set; }
-        public int order { get; set; }
-        public Roomstayfacility[] roomStayFacilities { get; set; }
-        public string stayType { get; set; }
+        public string? stayType { get; set; }
+        public string? order { get; set; }
+        public string? description { get; set; }
+        public List<RoomStayFacility>? roomStayFacilities { get; set; }
     }
 }

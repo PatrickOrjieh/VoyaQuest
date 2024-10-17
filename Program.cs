@@ -27,6 +27,9 @@ namespace VoyaQuest
             //Register the HotelbedsService
             builder.Services.AddHttpClient<IHotelbedsService, HotelbedsService>();
 
+            //Register the cache service
+            builder.Services.AddMemoryCache();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

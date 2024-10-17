@@ -2,7 +2,7 @@
 {
     public class Phone
     {
-        public long phoneNumber { get; set; }
-        public string phoneType { get; set; }
+        public string? phoneNumber { get; set; }
+        public string? phoneType { get; set; }
     }
 }
