@@ -3,6 +3,7 @@ using VoyaQuest.Models;
 using VoyaQuest.Models.FlightOffersResponse;
 using VoyaQuest.Interfaces;
 using System.Net.Http.Headers;
+using VoyaQuest.Comparators;
 
 namespace VoyaQuest.Services
 {
@@ -69,6 +70,35 @@ namespace VoyaQuest.Services
         {
             // This function extracts the IATA code from a string like "DUBLIN (DBN)"
             return airport?.Substring(airport.LastIndexOf('(') + 1, 3).ToUpper();
+        }
+
+        /// <summary>
+        /// This method sorts the list of flights based on the provided sort criteria.
+        /// </summary>
+        /// <param name="flights">The list of flights to sort.</param>
+        /// <param name="sortBy">The criteria to sort by.</param>
+        /// <param name="ascending">The sort order.</param>
+        /// <returns>Returns the sorted list of flights.</returns>
+        public List<FlightOffer> SortFlights(List<FlightOffer> flights, string sortBy, bool ascending)
+        {
+            if (flights == null || !flights.Any())
+                return flights;
+
+            switch (sortBy.ToLower())
+            {
+                case "price":
+                    flights.Sort(new PriceComparator(ascending));
+                    break;
+
+                case "duration":
+                    flights.Sort(new DurationComparator(ascending));
+                    break;
+
+                default:
+                    break;
+            }
+
+            return flights;
         }
     }
 }
