@@ -1,4 +1,6 @@
-﻿<nav class="navbar navbar-expand-lg" style="background-color: white;">
+﻿@using VoyaQuest.Enums
+
+<nav class="navbar navbar-expand-lg" style="background-color: white;">
     <div class="container">
         <a class="navbar-brand d-flex align-items-center me-5" href="/">
             <img src="images/icons8-truck.gif" alt="Logo" width="30" height="30" class="d-inline-block align-text-top me-2">
@@ -71,3 +73,29 @@
         </div>
     </div>
 </nav>
+
+@code{
+    private Currency selectedCurrency = Currency.USD;
+
+    private async Task OnCurrencyChange(ChangeEventArgs e)
+    {
+        selectedCurrency = Enum.Parse<Currency>(e.Value.ToString());
+        await UpdateFlightPrices();
+    }
+
+    private string GetCurrencyFlag(Currency currency)
+    {
+        return currency switch
+        {
+            // Images gotten from https://www.flaticon.com/search 
+            Currency.USD => "https://cdn.britannica.com/79/4479-050-6EF87027/flag-Stars-and-Stripes.jpg",
+            Currency.EUR => "https://upload.wikimedia.org/wikipedia/commons/b/b7/Flag_of_Europe.svg",
+            Currency.GBP => "https://upload.wikimedia.org/wikipedia/en/a/ae/Flag_of_the_United_Kingdom.svg",
+            Currency.JPY => "https://upload.wikimedia.org/wikipedia/commons/9/9e/Flag_of_Japan.svg",
+            Currency.CAD => "https://upload.wikimedia.org/wikipedia/commons/c/cf/Flag_of_Canada.svg",
+            Currency.AUD => "https://upload.wikimedia.org/wikipedia/commons/b/b9/Flag_of_Australia.svg",
+            _ => "https://upload.wikimedia.org/wikipedia/commons/6/6a/Default_flag.jpg"
+        };
+    }
+
+}
