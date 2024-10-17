@@ -1,0 +1,133 @@
+﻿.hotel-section {
+    margin-top: 50px;
+}
+
+.header-section h2 {
+    font-size: 2.5rem;
+    color: #000000;
+}
+
+.header-section p {
+    font-size: 1.1rem;
+    color: #6c757d;
+}
+
+.star-buttons {
+    text-align: center;
+}
+
+.star-buttons .btn {
+    border-radius: 50px;
+    font-size: 1rem;
+    background-color: transparent;
+    color: #000000;
+    border: 2px solid #000000;
+    padding: 5px 15px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.star-buttons .btn:hover, .star-buttons .btn:focus {
+    background-color: #ef732a;
+    color: #ffffff;
+    border-color: #ef732a;
+}
+
+.card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: scale(1.05);
+}
+
+.hotel-img {
+    width: 100%;
+    height: 175px;
+    object-fit: cover;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.card-title {
+    font-size: 1.15rem;
+    font-weight: bold;
+    color: #343a40;
+}
+
+.card-text {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.card-text i {
+    margin-right: 5px;
+}
+
+.hotel-rating i {
+    font-size: 1rem;
+    margin-right: 5px;
+}
+
+.hotel-rating .fa-star {
+    color: #ef732a;
+}
+
+.btn-hotel {
+    background-color: transparent;
+    color: #000000;
+    border: 2px solid #000000;
+    border-radius: 50px;
+    padding: 5px 15px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.btn-hotel:hover,
+.btn-hotel:focus {
+    background-color: #ef732a;
+    color: #ffffff;
+    border-color: #ef732a;
+}
+
+@media (max-width: 768px) {
+    .card {
+        margin-bottom: 30px;
+    }
+
+    .hotel-img {
+        height: 150px;
+    }
+
+    .card-body {
+        padding: 15px;
+    }
+}
+
+.hotel-details {
+    font-size: 0.95rem;
+    display: flex;
+    flex-direction: column;
+    line-height: 0.8;
+}
+
+.hotel-details span {
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+}
+
+.hotel-details i {
+    font-size: 0.9rem;
+    margin-right: 6px;
+}
+
+.hotel-details strong {
+    font-weight: 600;
+    margin-right: 6px;
+}

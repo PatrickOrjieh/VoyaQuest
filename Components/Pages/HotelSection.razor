@@ -1,38 +1,108 @@
 ﻿@using VoyaQuest.Models.HotelbedsResponse
 @inject VoyaQuest.Interfaces.IHotelbedsService HotelbedsService
 
-<div>
-    <h2>Hotel List</h2>
-    <ul>
+<div class="hotel-section container mt-5" id="hotel-section">
+    <div class="header-section text-left mb-4">
+        <h2 class="display-4 text-black">Hotels in your home country</h2>
+        <p class="text-muted">Your next adventure may be closer than you think. Discover hotels just beyond your doorstep.</p>
+    </div>
+
+    <div class="star-buttons mb-4 text-center">
+        @if (allHotels != null && allHotels.Any())
+        {
+            var uniqueRatings = allHotels
+            .Where(h => !string.IsNullOrEmpty(h.S2C))
+            .Select(h => h.S2C)
+            .Distinct();
+
+            @foreach (var rating in uniqueRatings)
+            {
+                <button class="btn btn-pill btn-outline-primary me-2" @onclick="@(() => FilterByRating(rating))">@rating</button>
+            }
+        }
+    </div>
+
+    <div class="row">
         @if (hotels != null && hotels.Any())
         {
-            Console.WriteLine("Hotels available");
-            @foreach (var hotel in hotels)
+            var topHotels = hotels.Take(15);
+
+            @foreach (var hotel in topHotels)
             {
-                <li>
-                    <h3>@hotel.name</h3>
-                </li>
+                <div class="col-md-4 mb-4">
+                    <div class="card shadow-sm border-0">
+                        @if (hotel.images != null && hotel.images.Any())
+                        {
+                            var imageUrl = $"http://photos.hotelbeds.com/giata/original/{hotel.images.First().path}";
+                            <img src="@imageUrl" class="card-img-top hotel-img" alt="Hotel Image">
+                        }
+                        else
+                        {
+                            <img src="https://content.r9cdn.net/res/images/horizon/hotels/airporthotels/hotel-photo-placeholder-retina.png?v=527b51d07baf5b5bd86ee5c54b1e9809a8fdabe8&cluster=4" class="card-img-top hotel-img" alt="No Image Available">
+                        }
+
+                        <div class="card-body">
+                            <h5 class="card-title text-dark mb-3">@hotel.name?.content</h5>
+                            <p class="card-text text-muted hotel-details">
+                                <span><i class="fas fa-map-marker-alt"></i> <strong>City:</strong> @hotel.city?.content</span> <br />
+                                <span><i class="fas fa-envelope"></i> <strong>Email:</strong> @hotel.email</span> <br />
+                                <span><i class="fas fa-phone"></i> <strong>Phone:</strong> @hotel.phones?.FirstOrDefault()?.phoneNumber</span> <br />
+                                <span><i class="fas fa-trophy"></i> <strong>Ranking:</strong> @hotel.ranking</span>
+                            </p>
+
+
+                            <div class="hotel-rating mb-2">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    if (i <= Convert.ToInt32(hotel.S2C?.Substring(0, 1)))
+                                    {
+                                        <i class="fas fa-star text-orange"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="far fa-star text-orange"></i>
+                                    }
+                                }
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(hotel.web))
+                            {
+                                <a href="@("https://" + hotel.web)" target="_blank" class="btn btn-pill btn-hotel">Visit Website</a>
+                            }
+                        </div>
+                    </div>
+                </div>
             }
         }
         else
         {
             <p>No hotels available at the moment.</p>
         }
-    </ul>
+    </div>
 </div>
 
 @code {
     private List<Hotel> hotels;
+    private List<Hotel> allHotels;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
             hotels = await HotelbedsService.GetHotelsAsync();
+            allHotels = hotels;
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Exception: {ex.Message}");
         }
+    }
+
+    // Filter hotels by S2C rating
+    private void FilterByRating(string rating)
+    {
+        Console.WriteLine($"Filtering by rating: {rating}");
+        hotels = allHotels.Where(h => h.S2C == rating).ToList();
+        Console.WriteLine($"Hotels after filtering: {hotels.Count}");
     }
 }
