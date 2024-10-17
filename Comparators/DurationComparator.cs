@@ -1,4 +1,5 @@
-﻿using VoyaQuest.Models.FlightOffersResponse;
+﻿using System.Text.RegularExpressions;
+using VoyaQuest.Models.FlightOffersResponse;
 
 namespace VoyaQuest.Comparators
 {
@@ -25,14 +26,44 @@ namespace VoyaQuest.Comparators
         /// <returns>Returns 0 if the durations are equal, -1 if x is less than y, and 1 if x is greater than y.</returns>
         public int Compare(FlightOffer x, FlightOffer y)
         {
-            if (x == null || y == null)
-                return 0;
+            TimeSpan durationX = ParseDuration(x.itineraries?.FirstOrDefault()?.duration);
+            TimeSpan durationY = ParseDuration(y.itineraries?.FirstOrDefault()?.duration);
 
-            TimeSpan durationX = TimeSpan.Parse(x.itineraries.First().duration.Replace("PT", "").ToLower());
-            TimeSpan durationY = TimeSpan.Parse(y.itineraries.First().duration.Replace("PT", "").ToLower());
+            int result = durationX.CompareTo(durationY);
 
-            // If ascending is true, sort from shortest to longest
-            return _ascending ? durationX.CompareTo(durationY) : durationY.CompareTo(durationX);
+            return _ascending ? result : -result;
+        }
+
+        /// <summary>
+        /// This method parses a duration string into a TimeSpan object.
+        /// </summary>
+        /// <param name="duration">The duration string to parse.</param>
+        /// <returns>Returns a TimeSpan object representing the duration.</returns>
+        private TimeSpan ParseDuration(string duration)
+        {
+            if (string.IsNullOrEmpty(duration))
+            {
+                return TimeSpan.Zero;
+            }
+
+            // Sample input: "1h45m" from the Amadeus API
+            int hours = 0, minutes = 0;
+
+            var match = Regex.Match(duration, @"(?:(\d+)h)?(?:(\d+)m)?");
+
+            if (match.Success)
+            {
+                if (!string.IsNullOrEmpty(match.Groups[1].Value))
+                {
+                    hours = int.Parse(match.Groups[1].Value);
+                }
+                if (!string.IsNullOrEmpty(match.Groups[2].Value))
+                {
+                    minutes = int.Parse(match.Groups[2].Value);
+                }
+            }
+
+            return new TimeSpan(hours, minutes, 0);
         }
     }
 }

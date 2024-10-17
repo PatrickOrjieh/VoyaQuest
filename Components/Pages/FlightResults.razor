@@ -47,6 +47,27 @@
         </div>
     </div>
 
+    <div class="sorting-controls">
+        <label for="sortOption">Sort by:</label>
+        <select id="sortOption" @onchange="OnSortOptionChanged" class="sort-dropdown">
+            <option value="price">Price</option>
+            <option value="duration">Duration</option>
+        </select>
+
+        <button class="sort-toggle-btn" @onclick="ToggleSortDirection">
+            @if (isAscending)
+            {
+                <i class="fas fa-arrow-up"></i>
+                <span>Ascending</span>
+            }
+            else
+            {
+                <i class="fas fa-arrow-down"></i>
+                <span>Descending</span>
+            }
+        </button>
+    </div>
+
     <div class="row">
         @if (flightOffers != null && flightOffers.Any())
         {
@@ -160,7 +181,6 @@
                             <th>Hotel Name</th>
                             <th>City</th>
                             <th>Rating</th>
-                            <th>License</th>
                             <th>Email</th>
                             <th>Website</th>
                         </tr>
@@ -172,19 +192,20 @@
                                 <td>@hotel.name?.content</td>
                                 <td>@hotel.city?.content</td>
                                 <td>
-                                    @for (int i = 1; i <= 5; i++)
-                                    {
-                                        if (i <= Convert.ToInt32(hotel.S2C?.Substring(0, 1)))
+                                    <div class="stars-container">
+                                        @for (int i = 1; i <= 5; i++)
                                         {
-                                            <i class="fas fa-star" style="color: #ff9800;"></i>
+                                            if (i <= Convert.ToInt32(hotel.S2C?.Substring(0, 1)))
+                                            {
+                                                <i class="fas fa-star star-icon"></i>
+                                            }
+                                            else
+                                            {
+                                                <i class="far fa-star star-icon"></i>
+                                            }
                                         }
-                                        else
-                                        {
-                                            <i class="far fa-star" style="color: #ff9800;"></i>
-                                        }
-                                    }
+                                    </div>
                                 </td>
-                                <td>@hotel.license</td>
                                 <td>@hotel.email</td>
                                 <td>
                                     @if (!string.IsNullOrEmpty(hotel.web))
@@ -354,5 +375,29 @@
         }
 
         return false;
+    }
+
+    private string selectedSortOption = "price"; // Default sorting option
+    private bool isAscending = true; // Default sorting order is ascending
+
+    // Call this when user changes the sort option
+    private void OnSortOptionChanged(ChangeEventArgs e)
+    {
+        selectedSortOption = e.Value.ToString();
+        SortFlights();
+    }
+
+    // Toggle sorting direction between ascending and descending
+    private void ToggleSortDirection()
+    {
+        isAscending = !isAscending;
+        SortFlights();
+    }
+
+    private void SortFlights()
+    {
+        flightOffers = FlightServiceSearch.SortFlights(flightOffers, selectedSortOption, isAscending);
+        ApplyPagination();
+        StateHasChanged();
     }
 }
