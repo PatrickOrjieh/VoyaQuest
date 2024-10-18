@@ -1,7 +1,7 @@
 ﻿namespace VoyaQuest.Enums
 {
     /// <summary>
-    /// This 
+    /// This enum represents the IATA codes for various cities.
     /// </summary>
     public enum IataCity
     {
