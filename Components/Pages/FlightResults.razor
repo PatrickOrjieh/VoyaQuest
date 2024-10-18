@@ -5,6 +5,7 @@
 @using System.Web
 @using VoyaQuest.Enums
 @using VoyaQuest.Models.HotelbedsResponse
+@using VoyaQuest.Components.Forms
 @inject IFlightServiceSearch FlightServiceSearch
 @inject IHotelbedsService HotelbedsService
 @inject NavigationManager NavigationManager
@@ -118,12 +119,18 @@
 
                                 <div class="flight-price text-end">
                                     <h5 class="text-black mb-3">@flightOffer.price.currency @flightOffer.price.total</h5>
-                                    <button class="btn btn-pill me-2">Book Now</button>
+                                    <button class="btn btn-pill me-2" @onclick="() => ShowBookingForm(flightOffer)">Book Now</button>
                                     @if (TryGetCityFromEnum(arrivalCityIataCode, out string matchedCity))
                                     {
                                         <button class="btn btn-pill btn-hotel" @onclick="@(() => ShowHotels(matchedCity))">View Hotels</button>
                                     }
                                 </div>
+
+                                @* @if (showBookingForm)
+                                {
+                                    <BookingForm FlightOffer="@selectedFlightOffer" OnClose="CloseBookingForm" />
+                                } *@
+
                             </div>
                         </div>
                     </div>
@@ -224,6 +231,36 @@
             </div>
         </div>
     }
+
+    @if (showBookingForm)
+    {
+        <div class="booking-modal">
+            <div class="booking-modal-content">
+                <span class="booking-close-button" @onclick="CloseBookingForm">&times;</span>
+                <h2>Booking Form</h2>
+
+                @if (hasErrors)
+                {
+                    <div class="alert alert-danger">
+                        @errorMessage
+                    </div>
+                }
+
+                <EditForm Model="@this" OnValidSubmit="HandleValidSubmit">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <InputText id="name" class="form-control" @bind-Value="name" />
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <InputText id="email" class="form-control" @bind-Value="email" />
+                    </div>
+
+                    <button class="btn btn-primary" type="submit">Book Now</button>
+                </EditForm>
+            </div>
+        </div>
+    }
 </div>
 
 @code {
@@ -246,6 +283,12 @@
     private bool canGoPrev => currentPage > 1;
     private bool canGoNext => flightOffers.Count > currentPage * pageSize;
     [CascadingParameter] public Currency SelectedCurrency { get; set; }
+    private bool showBookingForm = false;
+    private FlightOffer selectedFlightOffer;
+    private string name;
+    private string email;
+    private bool hasErrors = false;
+    private string errorMessage = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -377,8 +420,8 @@
         return false;
     }
 
-    private string selectedSortOption = "price"; // Default sorting option
-    private bool isAscending = true; // Default sorting order is ascending
+    private string selectedSortOption = "price";
+    private bool isAscending = true;
 
     // Call this when user changes the sort option
     private void OnSortOptionChanged(ChangeEventArgs e)
@@ -399,5 +442,60 @@
         flightOffers = FlightServiceSearch.SortFlights(flightOffers, selectedSortOption, isAscending);
         ApplyPagination();
         StateHasChanged();
+    }
+
+    private void ShowBookingForm(FlightOffer flightOffer)
+    {
+        selectedFlightOffer = flightOffer;
+        showBookingForm = true;
+    }
+
+    private void CloseBookingForm()
+    {
+        showBookingForm = false;
+    }
+
+    private void HandleValidSubmit()
+    {
+        if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(email))
+        {
+            hasErrors = true;
+            errorMessage = "Please fill in all required fields.";
+        }
+        else if (!IsValidEmail(email))
+        {
+            hasErrors = true;
+            errorMessage = "Please enter a valid email address.";
+        }
+        else
+        {
+            hasErrors = false;
+            errorMessage = string.Empty;
+            GenerateItinerary();
+            showBookingForm = false;
+        }
+    }
+
+    private bool IsValidEmail(string email)
+    {
+        var trimmedEmail = email.Trim();
+        try
+        {
+            var addr = new System.Net.Mail.MailAddress(email);
+            return addr.Address == trimmedEmail;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private void GenerateItinerary()
+    {
+        string itinerary = $"Name: {name}\nEmail: {email}\nFlight: {selectedFlightOffer.itineraries.First().segments.First().carrierCode}";
+        var bytes = System.Text.Encoding.UTF8.GetBytes(itinerary);
+        var base64 = Convert.ToBase64String(bytes);
+        var downloadLink = $"data:application/octet-stream;base64,{base64}";
+        NavigationManager.NavigateTo(downloadLink, true);
     }
 }
