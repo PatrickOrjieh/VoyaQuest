@@ -16,54 +16,68 @@ namespace VoyaQuest.Utilities
 
         public static byte[] GeneratePdfItinerary(string name, string email, FlightOffer selectedFlightOffer)
         {
-            Document doc = new Document(PageSize.A4);
-            using (MemoryStream memoryStream = new MemoryStream())
+            try
             {
-                PdfWriter.GetInstance(doc, memoryStream);
-                doc.Open();
-
-                if (File.Exists(logoPath))
+                Document doc = new Document(PageSize.A4);
+                using (MemoryStream memoryStream = new MemoryStream())
                 {
-                    Image logo = Image.GetInstance(logoPath);
-                    logo.ScaleToFit(100f, 50f);
-                    logo.Alignment = Element.ALIGN_CENTER;
-                    doc.Add(logo);
+                    Console.WriteLine("Starting PDF generation...");
+
+                    PdfWriter.GetInstance(doc, memoryStream);
+                    doc.Open();
+
+                    if (File.Exists(logoPath))
+                    {
+                        Console.WriteLine("Adding logo...");
+                        Image logo = Image.GetInstance(logoPath);
+                        logo.ScaleToFit(100f, 50f);
+                        logo.Alignment = Element.ALIGN_CENTER;
+                        doc.Add(logo);
+                    }
+
+                    // to add title
+                    Console.WriteLine("Adding title...");
+                    Font titleFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 18, companyColor);
+                    Paragraph title = new Paragraph("Flight Itinerary", titleFont)
+                    {
+                        Alignment = Element.ALIGN_CENTER
+                    };
+                    doc.Add(title);
+
+                    // Add space
+                    doc.Add(new Paragraph(" "));
+
+                    // Add passenger details
+                    Console.WriteLine("Adding passenger details...");
+                    Font regularFont = FontFactory.GetFont(FontFactory.HELVETICA, 12);
+                    doc.Add(new Paragraph($"Name: {name}", regularFont));
+                    doc.Add(new Paragraph($"Email: {email}", regularFont));
+                    doc.Add(new Paragraph(" ", regularFont));
+
+                    // Add flight information in a table format
+                    PdfPTable table = new PdfPTable(2) { WidthPercentage = 100 };
+                    table.AddCell(GetStyledCell("Flight Carrier", companyColor));
+                    table.AddCell(selectedFlightOffer.itineraries.First().segments.First().carrierCode);
+                    table.AddCell(GetStyledCell("Departure", companyColor));
+                    table.AddCell($"{selectedFlightOffer.itineraries.First().segments.First().departure.iataCode}, {selectedFlightOffer.itineraries.First().segments.First().departure.at}");
+                    table.AddCell(GetStyledCell("Arrival", companyColor));
+                    table.AddCell($"{selectedFlightOffer.itineraries.First().segments.Last().arrival.iataCode}, {selectedFlightOffer.itineraries.First().segments.Last().arrival.at}");
+                    table.AddCell(GetStyledCell("Duration", companyColor));
+                    table.AddCell(selectedFlightOffer.itineraries.First().duration);
+                    table.AddCell(GetStyledCell("Price", companyColor));
+                    table.AddCell($"{selectedFlightOffer.price.currency} {selectedFlightOffer.price.total}");
+                    doc.Add(table);
+
+                    doc.Close();
+
+                    Console.WriteLine("PDF generation complete.");
+                    return memoryStream.ToArray();
                 }
-
-                // to add title
-                Font titleFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 18, companyColor);
-                Paragraph title = new Paragraph("Flight Itinerary", titleFont)
-                {
-                    Alignment = Element.ALIGN_CENTER
-                };
-                doc.Add(title);
-
-                // Add space
-                doc.Add(new Paragraph(" "));
-
-                // Add passenger details
-                Font regularFont = FontFactory.GetFont(FontFactory.HELVETICA, 12);
-                doc.Add(new Paragraph($"Name: {name}", regularFont));
-                doc.Add(new Paragraph($"Email: {email}", regularFont));
-                doc.Add(new Paragraph(" ", regularFont));
-
-                // Add flight information in a table format
-                PdfPTable table = new PdfPTable(2) { WidthPercentage = 100 };
-                table.AddCell(GetStyledCell("Flight Carrier", companyColor));
-                table.AddCell(selectedFlightOffer.itineraries.First().segments.First().carrierCode);
-                table.AddCell(GetStyledCell("Departure", companyColor));
-                table.AddCell($"{selectedFlightOffer.itineraries.First().segments.First().departure.iataCode}, {selectedFlightOffer.itineraries.First().segments.First().departure.at}");
-                table.AddCell(GetStyledCell("Arrival", companyColor));
-                table.AddCell($"{selectedFlightOffer.itineraries.First().segments.Last().arrival.iataCode}, {selectedFlightOffer.itineraries.First().segments.Last().arrival.at}");
-                table.AddCell(GetStyledCell("Duration", companyColor));
-                table.AddCell(selectedFlightOffer.itineraries.First().duration);
-                table.AddCell(GetStyledCell("Price", companyColor));
-                table.AddCell($"{selectedFlightOffer.price.currency} {selectedFlightOffer.price.total}");
-                doc.Add(table);
-
-                doc.Close();
-
-                return memoryStream.ToArray();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return null;
             }
         }
 
